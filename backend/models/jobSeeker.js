@@ -1,5 +1,20 @@
 const mongoose = require("mongoose");
 
+const certificationSchema = new mongoose.Schema({
+  title: String,
+  organization: String,
+  year: String
+});
+
+const resumeSchema = new mongoose.Schema({
+  title: String,
+  filePath: String,
+  uploadedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const jobseekerProfileSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -9,30 +24,14 @@ const jobseekerProfileSchema = new mongoose.Schema({
   phone: String,
   location: String,
   bio: String,
-  skills: [String],
-  education: [String],
-  experience: [String],
+  skills: { type: [String], default: [] },
+  education: { type: [String], default: [] },
+  experience: { type: [String], default: [] },
   portfolio: String,
   profilePhoto: String,
-
-  resumes: [
-    {
-      title: String,
-      fileUrl: String,
-      uploadedAt: {
-        type: Date,
-        default: Date.now
-      }
-    }
-  ],
-
-  certifications: [
-    {
-      title: String,
-      organization: String,
-      year: String
-    }
-  ]
-}, { timestamps: true });
+  resumes: { type: [resumeSchema], default: [] },
+  certifications: { type: [certificationSchema], default: [] },
+  completion: { type: Number, default: 0 }
+});
 
 module.exports = mongoose.model("JobseekerProfile", jobseekerProfileSchema);

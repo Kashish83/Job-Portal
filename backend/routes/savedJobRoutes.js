@@ -1,3 +1,6 @@
+const express = require("express");
+const router = express.Router();
+
 const {
   saveJob,
   getSavedJobs,
@@ -7,7 +10,9 @@ const {
 const { protect } = require("../middleware/authMiddleware");
 const { authorize } = require("../middleware/roleMiddleware");
 
-// Jobseeker only
+// ✅ Jobseeker only
+
+// Save a job
 router.post(
   "/:jobId/save",
   protect,
@@ -15,6 +20,7 @@ router.post(
   saveJob
 );
 
+// Get saved jobs
 router.get(
   "/saved/jobs",
   protect,
@@ -22,9 +28,12 @@ router.get(
   getSavedJobs
 );
 
+// Remove a saved job
 router.delete(
   "/:jobId/unsave",
   protect,
   authorize("jobseeker"),
   removeSavedJob
 );
+
+module.exports = router;

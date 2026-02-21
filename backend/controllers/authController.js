@@ -1,11 +1,11 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
-const generateToken = (id) => {
+const generateToken = (id,role) => {
   if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET not defined");
   }
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
 };
@@ -38,7 +38,7 @@ const signup = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      token: generateToken(user._id),
+      token: generateToken(user._id, user.role),
     });
 
   } catch (error) {
@@ -65,7 +65,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        token: generateToken(user._id),
+        token: generateToken(user._id, user.role),
       });
     } else {
       res.status(401).json({ message: "Invalid email or password" });

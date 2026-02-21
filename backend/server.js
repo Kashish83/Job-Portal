@@ -1,47 +1,90 @@
-const express= require("express");
-const  cors = require("cors");
-const dotenv= require("dotenv");
-const connectDB = require('./config/db');
-const authRoutes= require("./routes/auth");
-//load environmnet variablews
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db");
+
+// =====================
+// Load Environment Variables
+// =====================
 dotenv.config();
 
-//connect to mongodb
+// =====================
+// Connect to MongoDB
+// =====================
 connectDB();
 
-//create express app
+// =====================
+// Create Express App
+// =====================
+const app = express();
 
-const app= express();
-
-
-//Middleware
+// =====================
+// Global Middlewares
+// =====================
 app.use(cors());
 app.use(express.json());
 
+// =====================
+// Base Route
+// =====================
+app.get("/", (req, res) => {
+  res.send("🚀 API is running...");
+});
 
+// =====================
+// API Routes
+// =====================
 
-//routes
-app.get("/",(req,res)=>res.send("api is running"));
-app.use("/api/auth", require("./routes/auth"));   // signup/login
-app.use("/api/test", require("./routes/test"));   // protected test route
+// Auth Routes (Signup / Login)
+app.use("/api/auth", require("./routes/auth"));
 
+// Test Protected Route
+app.use("/api/test", require("./routes/test"));
+
+// Job Routes
 app.use("/api/jobs", require("./routes/jobRoutes"));
+
+// Apply Job Routes
 app.use("/api/apply", require("./routes/apply"));
 
-const profileRoutes = require("./routes/profileRoutes");
-app.use("/api/profile", profileRoutes);
-// Employer applications routes
+// Jobseeker Profile Routes
+app.use("/api/profile", require("./routes/jobSeekerProfileRoutes"));
+
+// Employer Routes
 app.use("/api/employer", require("./routes/employerRoutes"));
+// Jobseeker Saved Jobs Routes
+app.use("/api/jobseeker", require("./routes/savedJobRoutes"));
+// Dashboard Routes
+app.use("/api/dashboard", require("./routes/dashboardRoute"));
 
-
-const dashboardRoutes = require("./routes/dashboardRoute");
-app.use("/api/dashboard", dashboardRoutes);
+// Resume Routes (If You Are Using Separate Controller)
 // app.use("/api/resume", require("./routes/resumeRoutes"));
 
-
-// Resume download
+// =====================
+// Serve Uploaded Files
+// =====================
 app.use("/uploads", express.static("uploads"));
-//start server
-const PORT=process.env.PORT||5000;
-app.listen(PORT,()=>
-console.log(`Server is running on Port ${PORT}`));
+
+// =====================
+// 404 Handler
+// =====================
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+// =====================
+// Global Error Handler (Optional but Recommended)
+// =====================
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Something went wrong" });
+});
+
+// =====================
+// Start Server
+// =====================
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🔥 Server running on port ${PORT}`);
+});

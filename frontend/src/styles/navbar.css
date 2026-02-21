@@ -1,0 +1,89 @@
+/* ================= NAVBAR ================= */
+
+.premium-navbar {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+
+  padding: 18px 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(15px);
+  transition: all 0.3s ease;
+}
+
+/* Scroll effect */
+.premium-navbar.scrolled {
+  padding: 12px 0;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+/* Logo */
+.brand-logo {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.brand-logo span {
+  color: #6366f1;
+}
+
+/* Nav Links */
+.premium-link {
+  font-weight: 500;
+  color: #64748b !important;
+  transition: 0.3s ease;
+}
+
+.premium-link:hover {
+  color: #6366f1 !important;
+}
+
+/* Active link */
+.nav-link.active {
+  color: #6366f1 !important;
+  font-weight: 600;
+}
+
+/* Primary Button */
+.btn-gradient {
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 8px 20px;
+  transition: 0.3s ease;
+}
+
+.btn-gradient:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+}
+
+/* Logout */
+.btn-logout {
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  background: transparent;
+  border-radius: 30px;
+  padding: 8px 20px;
+  transition: 0.3s ease;
+}
+
+.btn-logout:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* Mobile */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    background: white;
+    margin-top: 15px;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  }
+}

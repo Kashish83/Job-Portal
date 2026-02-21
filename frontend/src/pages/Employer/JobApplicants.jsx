@@ -6,45 +6,62 @@ const JobApplicants = () => {
   const { jobId } = useParams();
   const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
-  // 🔹 Fetch applicants
+  // ✅ Fetch applicants
   useEffect(() => {
     const fetchApplicants = async () => {
+      setLoading(true);
       try {
         const res = await API.get(
-          `/employer/jobs/${jobId}/applicants`
+          `/employer/applications/${jobId}`
         );
         setApplicants(res.data);
+        setErrorMsg("");
       } catch (err) {
-        alert("Failed to load applicants");
+        setErrorMsg("Failed to load applicants");
       } finally {
         setLoading(false);
       }
     };
+
     fetchApplicants();
   }, [jobId]);
 
-  // 🔹 Update applicant status
-  const updateStatus = async (applicantId, status) => {
+  // ✅ Update applicant status
+  const updateStatus = async (applicationId, status) => {
+    setUpdatingId(applicationId);
+    setSuccessMsg("");
+    setErrorMsg("");
+
     try {
       await API.put(
-        `/employer/applications/${applicantId}/status`,
+        `/employer/applications/${applicationId}/status`,
         { status }
       );
+
       setApplicants((prev) =>
-        prev.map((a) =>
-          a._id === applicantId ? { ...a, status } : a
+        prev.map((app) =>
+          app._id === applicationId
+            ? { ...app, status }
+            : app
         )
       );
+
+      setSuccessMsg(`Applicant ${status} successfully!`);
     } catch (err) {
-      alert("Status update failed");
+      setErrorMsg("Status update failed");
+    } finally {
+      setUpdatingId(null);
     }
   };
 
   if (loading) {
     return (
       <div className="text-center mt-5">
-        <div className="spinner-border"></div>
+        <div className="spinner-border" role="status"></div>
       </div>
     );
   }
@@ -53,13 +70,21 @@ const JobApplicants = () => {
     <div className="container mt-4">
       <h3 className="mb-4">Job Applicants</h3>
 
+      {errorMsg && (
+        <div className="alert alert-danger">{errorMsg}</div>
+      )}
+
+      {successMsg && (
+        <div className="alert alert-success">{successMsg}</div>
+      )}
+
       {applicants.length === 0 ? (
         <div className="alert alert-info">
           No applicants for this job yet.
         </div>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-bordered table-hover">
+        <div className="table-responsive shadow-sm rounded">
+          <table className="table modern-table mb-0">
             <thead className="table-dark">
               <tr>
                 <th>Name</th>
@@ -73,8 +98,13 @@ const JobApplicants = () => {
             <tbody>
               {applicants.map((applicant) => (
                 <tr key={applicant._id}>
-                  <td>{applicant.name}</td>
-                  <td>{applicant.email}</td>
+                  <td>
+                    {applicant.applicant?.name || "N/A"}
+                  </td>
+
+                  <td>
+                    {applicant.applicant?.email || "N/A"}
+                  </td>
 
                   <td>
                     <a
@@ -89,15 +119,12 @@ const JobApplicants = () => {
 
                   <td>
                     <span
-                      className={`badge ${
-                        applicant.status === "shortlisted"
-                          ? "bg-success"
-                          : applicant.status === "rejected"
-                          ? "bg-danger"
-                          : "bg-warning"
-                      }`}
+                      className={`badge status-badge ${applicant.status}`}
                     >
-                      {applicant.status}
+                      {applicant.status
+                        ? applicant.status.charAt(0).toUpperCase() +
+                          applicant.status.slice(1)
+                        : "Pending"}
                     </span>
                   </td>
 
@@ -105,20 +132,44 @@ const JobApplicants = () => {
                     <button
                       className="btn btn-sm btn-success me-2"
                       onClick={() =>
-                        updateStatus(applicant._id, "shortlisted")
+                        updateStatus(
+                          applicant._id,
+                          "shortlisted"
+                        )
                       }
-                      disabled={applicant.status === "shortlisted"}
+                      disabled={
+                        applicant.status ===
+                          "shortlisted" ||
+                        updatingId === applicant._id
+                      }
                     >
+                      {updatingId === applicant._id &&
+                      applicant.status !==
+                        "shortlisted" ? (
+                        <span className="spinner-border spinner-border-sm me-1"></span>
+                      ) : null}
                       Shortlist
                     </button>
 
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() =>
-                        updateStatus(applicant._id, "rejected")
+                        updateStatus(
+                          applicant._id,
+                          "rejected"
+                        )
                       }
-                      disabled={applicant.status === "rejected"}
+                      disabled={
+                        applicant.status ===
+                          "rejected" ||
+                        updatingId === applicant._id
+                      }
                     >
+                      {updatingId === applicant._id &&
+                      applicant.status !==
+                        "rejected" ? (
+                        <span className="spinner-border spinner-border-sm me-1"></span>
+                      ) : null}
                       Reject
                     </button>
                   </td>

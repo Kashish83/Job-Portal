@@ -45,7 +45,7 @@ const updateApplicationStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid Application ID" });
     }
 
-    const allowedStatuses = ["Pending", "Reviewed", "Accepted", "Rejected"];
+    const allowedStatuses =["Pending", "Shortlisted", "Rejected"];
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({ message: "Invalid status value" });
     }

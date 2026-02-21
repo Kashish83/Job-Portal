@@ -13,7 +13,10 @@ const EmployerSettings = () => {
     newPassword: ""
   });
 
-  const [loading, setLoading] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(false);
+  const [loadingPassword, setLoadingPassword] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   // 🔹 Fetch employer settings
   useEffect(() => {
@@ -22,7 +25,7 @@ const EmployerSettings = () => {
         const res = await API.get("/employer/settings");
         setUser(res.data);
       } catch (err) {
-        alert("Failed to load settings");
+        setErrorMsg("Failed to load settings");
       }
     };
     fetchSettings();
@@ -45,61 +48,78 @@ const EmployerSettings = () => {
     });
   };
 
-  // 🔹 Save settings
+  // 🔹 Save account settings
   const saveSettings = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoadingUser(true);
+    setSuccessMsg("");
+    setErrorMsg("");
     try {
       await API.put("/employer/settings", user);
-      alert("Settings updated");
+      setSuccessMsg("Settings updated successfully!");
     } catch (err) {
-      alert("Failed to update settings");
+      setErrorMsg("Failed to update settings");
     } finally {
-      setLoading(false);
+      setLoadingUser(false);
     }
   };
 
   // 🔹 Change password
   const changePassword = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoadingPassword(true);
+    setSuccessMsg("");
+    setErrorMsg("");
+
+    // Simple password validation
+    if (passwords.newPassword.length < 6) {
+      setErrorMsg("New password must be at least 6 characters long");
+      setLoadingPassword(false);
+      return;
+    }
+
     try {
       await API.put("/employer/change-password", passwords);
-      alert("Password changed successfully");
+      setSuccessMsg("Password changed successfully!");
       setPasswords({ oldPassword: "", newPassword: "" });
     } catch (err) {
-      alert("Password change failed");
+      setErrorMsg("Password change failed");
     } finally {
-      setLoading(false);
+      setLoadingPassword(false);
     }
   };
 
   return (
     <div className="container mt-4">
+
       <h3 className="mb-4">Employer Settings</h3>
 
-      {/* Account Info */}
-      <div className="card mb-4 shadow">
-        <div className="card-header bg-dark text-white">
-          Account Information
-        </div>
+      {/* Success / Error Messages */}
+      {successMsg && <div className="alert alert-success">{successMsg}</div>}
+      {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
 
+      {/* Account Information */}
+      <div className="card mb-4 shadow">
+        <div className="card-header bg-dark text-white">Account Information</div>
         <div className="card-body">
           <form onSubmit={saveSettings}>
             <div className="mb-3">
-              <label className="form-label">Name</label>
+              <label htmlFor="name" className="form-label">Name</label>
               <input
+                id="name"
                 type="text"
                 className="form-control"
                 name="name"
                 value={user.name}
                 onChange={handleUserChange}
+                required
               />
             </div>
 
             <div className="mb-3">
-              <label className="form-label">Email</label>
+              <label htmlFor="email" className="form-label">Email</label>
               <input
+                id="email"
                 type="email"
                 className="form-control"
                 value={user.email}
@@ -112,16 +132,24 @@ const EmployerSettings = () => {
                 className="form-check-input"
                 type="checkbox"
                 name="notifications"
+                id="notifications"
                 checked={user.notifications}
                 onChange={handleUserChange}
               />
-              <label className="form-check-label">
+              <label className="form-check-label" htmlFor="notifications">
                 Email Notifications
               </label>
             </div>
 
-            <button className="btn btn-primary" disabled={loading}>
-              Save Changes
+            <button className="btn btn-primary" disabled={loadingUser}>
+              {loadingUser ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2"></span>
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </button>
           </form>
         </div>
@@ -129,15 +157,13 @@ const EmployerSettings = () => {
 
       {/* Change Password */}
       <div className="card shadow">
-        <div className="card-header bg-warning">
-          Change Password
-        </div>
-
+        <div className="card-header bg-warning">Change Password</div>
         <div className="card-body">
           <form onSubmit={changePassword}>
             <div className="mb-3">
-              <label className="form-label">Old Password</label>
+              <label htmlFor="oldPassword" className="form-label">Old Password</label>
               <input
+                id="oldPassword"
                 type="password"
                 className="form-control"
                 name="oldPassword"
@@ -148,8 +174,9 @@ const EmployerSettings = () => {
             </div>
 
             <div className="mb-3">
-              <label className="form-label">New Password</label>
+              <label htmlFor="newPassword" className="form-label">New Password</label>
               <input
+                id="newPassword"
                 type="password"
                 className="form-control"
                 name="newPassword"
@@ -157,10 +184,18 @@ const EmployerSettings = () => {
                 onChange={handlePasswordChange}
                 required
               />
+              <div className="form-text">Must be at least 6 characters long</div>
             </div>
 
-            <button className="btn btn-warning" disabled={loading}>
-              Update Password
+            <button className="btn btn-warning" disabled={loadingPassword}>
+              {loadingPassword ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2"></span>
+                  Updating...
+                </>
+              ) : (
+                "Update Password"
+              )}
             </button>
           </form>
         </div>

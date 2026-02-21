@@ -1,49 +1,68 @@
-import React,{useEffect,useState} from "react";
+import React, { useEffect, useState } from "react";
 import API from "../../utils/api"; 
-const CompanyProfile=()=>{
-    const [company,setcompany]=useState({
-        name:"",
-        logo:"",
-        email:"",
-        phone:"",
-        website:"",
-        about:"",
-        location:""
-    });
- const [loading, setLoading] = useState(false);
-    //fetch company profile
-    useEffect(()=>{
-        const fetchProfile=async()=>{
-            try{
-const res= await API.get("/employer/company-profile");
-setcompany(res.data);
-            }catch(err){
-alert("Failed to load company profile");
-            }
-        }
-        fetchProfile();
-    }, []);
-    //handle input changes
-    const handleChange=(e)=>{
-        setcompany({
-            ...company,
-            [e.target.name]:e.target.value
-        })
-    }
-//update profile
-    const handleSubmit=async(e)=>{
-        e.preventDefault();
-        setLoading(true);
-        try{
-            await API.put("/employer/company-profile",company);
-            alert("company profile updated successfully");
-        }catch(err){
-            alert("profile not found");
-        }finally{
-            setLoading(false);
-        }
+
+const CompanyProfile = () => {
+  const [company, setCompany] = useState({
+    name: "",
+    logo: "",
+    email: "",
+    phone: "",
+    website: "",
+    about: "",
+    location: ""
+  });
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [error, setError] = useState("");
+
+  // Fetch company profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await API.get("/employer/company-profile");
+        setCompany(res.data);
+      } catch (err) {
+        setError("Failed to load company profile");
+      } finally {
+        setFetching(false);
+      }
     };
+    fetchProfile();
+  }, []);
+
+  // Handle input changes
+  const handleChange = (e) => {
+    setCompany({
+      ...company,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // Update profile
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await API.put("/employer/company-profile", company);
+      alert("Company profile updated successfully!");
+    } catch (err) {
+      alert("Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (fetching) {
     return (
+      <div className="container mt-4 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
     <div className="container mt-4">
       <div className="card shadow">
         <div className="card-header bg-dark text-white">
@@ -51,11 +70,12 @@ alert("Failed to load company profile");
         </div>
 
         <div className="card-body">
+          {error && <div className="alert alert-danger">{error}</div>}
           <form onSubmit={handleSubmit}>
 
             <div className="row mb-3">
               <div className="col-md-6">
-                <label className="form-label">Company Name</label>
+                <label className="form-label">Company Name *</label>
                 <input
                   type="text"
                   className="form-control"
@@ -131,11 +151,11 @@ alert("Failed to load company profile");
             >
               {loading ? "Updating..." : "Update Profile"}
             </button>
-
           </form>
         </div>
       </div>
     </div>
   );
 };
+
 export default CompanyProfile;

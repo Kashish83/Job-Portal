@@ -1,73 +1,4 @@
-// import React, { useEffect, useState } from "react";
-// import API from "../../../utils/api";
-// import { Link } from "react-router-dom";
 
-// const SavedJobs = () => {
-//   const [jobs, setJobs] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchSavedJobs = async () => {
-//       try {
-//         const res = await API.get("/jobseeker/saved-jobs");
-//         setJobs(res.data);
-//       } catch (err) {
-//         alert("Failed to load saved jobs");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchSavedJobs();
-//   }, []);
-
-//   const removeJob = async (jobId) => {
-//     if (!window.confirm("Remove this job?")) return;
-//     try {
-//       await API.delete(`/jobseeker/remove-saved/${jobId}`);
-//       setJobs(jobs.filter((job) => job._id !== jobId));
-//     } catch (err) {
-//       alert("Failed to remove job");
-//     }
-//   };
-
-//   if (loading) return <div className="text-center mt-4">Loading...</div>;
-
-//   return (
-//     <div className="container mt-4">
-//       <h4 className="mb-3">Saved Jobs</h4>
-
-//       {jobs.length === 0 ? (
-//         <p>No saved jobs yet</p>
-//       ) : (
-//         jobs.map((job) => (
-//           <div className="card mb-3 shadow-sm" key={job._id}>
-//             <div className="card-body">
-//               <h5>{job.title}</h5>
-//               <p>{job.company?.name}</p>
-//               <p>📍 {job.location}</p>
-
-//               <Link
-//                 to={`/jobseeker/job/${job._id}`}
-//                 className="btn btn-sm btn-primary me-2"
-//               >
-//                 View
-//               </Link>
-
-//               <button
-//                 className="btn btn-sm btn-danger"
-//                 onClick={() => removeJob(job._id)}
-//               >
-//                 Remove
-//               </button>
-//             </div>
-//           </div>
-//         ))
-//       )}
-//     </div>
-//   );
-// };
-
-// export default SavedJobs;
 
 
 import React, { useEffect, useState } from "react";
@@ -82,7 +13,7 @@ const SavedJobs = () => {
   useEffect(() => {
     const fetchSavedJobs = async () => {
       try {
-        const res = await API.get("/jobseeker/saved-jobs");
+        const res = await API.get("/jobseeker/saved/jobs");
         setJobs(res.data || []);
       } catch (err) {
         console.log(err);
@@ -97,7 +28,7 @@ const SavedJobs = () => {
   const removeJob = async (jobId) => {
     if (!window.confirm("Remove this job?")) return;
     try {
-      await API.delete(`/jobseeker/remove-saved/${jobId}`);
+      await API.delete(`/jobseeker/${jobId}/unsave`);
       setJobs(jobs.filter((job) => job._id !== jobId));
     } catch (err) {
       alert("Failed to remove job");
@@ -117,8 +48,8 @@ const SavedJobs = () => {
         </div>
       ) : (
         <div className="jobs-grid">
-          {jobs.map((job) => (
-            <div className="job-card" key={job._id}>
+          {jobs.map((job,index) => (
+            <div className="job-card" key={job._id || index}>
               
               <div className="job-top">
                 <h5>{job.title}</h5>

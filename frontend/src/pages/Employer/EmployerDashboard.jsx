@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../../utils/api";
-
+import "../../styles/employer.css"
 const EmployerDashboard = () => {
   const [stats, setStats] = useState({
     totalJobs: 0,

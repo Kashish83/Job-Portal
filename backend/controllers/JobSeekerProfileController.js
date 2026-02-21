@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const JobseekerProfile = require("../models/JobseekerProfile");
+const JobseekerProfile = require("../models/jobseeker");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -93,65 +93,65 @@ exports.updateProfile = async (req, res) => {
 };
 
 // ---------- Resume Upload ----------
-exports.addResume = async (req, res) => {
-  try {
-    if (req.user.role !== "jobseeker") {
-      return res.status(403).json({ message: "Only jobseekers allowed" });
-    }
+// exports.addResume = async (req, res) => {
+//   try {
+//     if (req.user.role !== "jobseeker") {
+//       return res.status(403).json({ message: "Only jobseekers allowed" });
+//     }
 
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
+//     if (!req.file) {
+//       return res.status(400).json({ message: "No file uploaded" });
+//     }
 
-    const profile = await JobseekerProfile.findOne({ user: req.user._id });
-    if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
-    }
+//     const profile = await JobseekerProfile.findOne({ user: req.user._id });
+//     if (!profile) {
+//       return res.status(404).json({ message: "Profile not found" });
+//     }
 
-    profile.resumes.push(req.file.path);
-    profile.completion = calculateCompletion(profile);
-    await profile.save();
+//     profile.resumes.push(req.file.path);
+//     profile.completion = calculateCompletion(profile);
+//     await profile.save();
 
-    res.json({ message: "Resume uploaded", resumes: profile.resumes });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+//     res.json({ message: "Resume uploaded", resumes: profile.resumes });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
-// ---------- Resume Delete ----------
-exports.deleteResume = async (req, res) => {
-  try {
-    if (req.user.role !== "jobseeker") {
-      return res.status(403).json({ message: "Only jobseekers allowed" });
-    }
+// // ---------- Resume Delete ----------
+// exports.deleteResume = async (req, res) => {
+//   try {
+//     if (req.user.role !== "jobseeker") {
+//       return res.status(403).json({ message: "Only jobseekers allowed" });
+//     }
 
-    const { resumeId } = req.params;
+//     const { resumeId } = req.params;
 
-    const profile = await JobseekerProfile.findOne({ user: req.user._id });
-    if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
-    }
+//     const profile = await JobseekerProfile.findOne({ user: req.user._id });
+//     if (!profile) {
+//       return res.status(404).json({ message: "Profile not found" });
+//     }
 
-    const resumeIndex = profile.resumes.findIndex(r => r === resumeId);
-    if (resumeIndex === -1) {
-      return res.status(404).json({ message: "Resume not found" });
-    }
+//     const resumeIndex = profile.resumes.findIndex(r => r === resumeId);
+//     if (resumeIndex === -1) {
+//       return res.status(404).json({ message: "Resume not found" });
+//     }
 
-    // Delete file from server
-    if (fs.existsSync(profile.resumes[resumeIndex])) {
-      fs.unlinkSync(profile.resumes[resumeIndex]);
-    }
+//     // Delete file from server
+//     if (fs.existsSync(profile.resumes[resumeIndex])) {
+//       fs.unlinkSync(profile.resumes[resumeIndex]);
+//     }
 
-    profile.resumes.splice(resumeIndex, 1);
-    profile.completion = calculateCompletion(profile);
+//     profile.resumes.splice(resumeIndex, 1);
+//     profile.completion = calculateCompletion(profile);
 
-    await profile.save();
+//     await profile.save();
 
-    res.json({ message: "Resume deleted", resumes: profile.resumes });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+//     res.json({ message: "Resume deleted", resumes: profile.resumes });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 // ---------- Certifications (Already existing functions) ----------
 exports.addCertification = async (req, res) => {
@@ -192,4 +192,4 @@ exports.deleteCertification = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};
+}; 
